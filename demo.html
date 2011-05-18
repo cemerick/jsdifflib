@@ -1,7 +1,7 @@
 <html>
 <head>
 
-<script type="text/javascript" src="/files/js/dojo/dojo.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/dojo/1.6.0/dojo/dojo.xd.js"></script>
 <script type="text/javascript" src="diffview.js"></script>
 <link rel="stylesheet" type="text/css" href="diffview.css"/>
 <script type="text/javascript" src="difflib.js"></script>
@@ -9,7 +9,6 @@
 
 <script language="javascript">
 var $ = dojo.byId;
-dojo.require("dojo.io");
 var url = window.location.toString().split("#")[0];
 
 function diffUsingJS () {
@@ -30,40 +29,10 @@ function diffUsingJS () {
 												   viewType: $("inline").checked ? 1 : 0 }));
 	window.location = url + "#diff";
 }
-
-function diffUsingPython () {
-	dojo.io.bind({
-		url: "/diff/postYieldDiffData",
-		method: "POST",
-		content: {
-			baseText: $("baseText").value,
-			newText: $("newText").value,
-			ignoreWhitespace: "Y"
-		},
-		load: function (type, data, evt) {
-			try {
-				data = eval('(' + data + ')');
-				while (diffoutputdiv.firstChild) diffoutputdiv.removeChild(diffoutputdiv.firstChild);
-				$("output").appendChild(diffview.buildView({ baseTextLines:data.baseTextLines,
-															 newTextLines:data.newTextLines,
-															 opcodes:data.opcodes,
-															 baseTextName:data.baseTextName,
-															 newTextName:data.newTextName,
-															 contextSize:contextSize  }));
-			} catch (ex) {
-				alert("An error occurred updating the diff view:\n" + ex.toString());
-			}
-		},
-		error: function(type, evt) {
-			alert('Error occurred getting diff data.  Check the server logs.');
-		},
-		type:'text/javascript'
-	});
-}
 </script>
 </head>
 <body>
-	<h1><a href="/jsdifflib">jsdifflib</a> demo</h1>
+	<h1><a href="http://github.com/cemerick/jsdifflib">jsdifflib</a> demo</h1>
 	<strong>Context size (optional):</strong> <input type="text" id="contextSize" value=""></input><br/>
 	<strong>Diff View Type:</strong>
 	<input type="radio" name="_viewtype" checked="checked" id="sidebyside"/> Side by Side

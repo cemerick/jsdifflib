@@ -1,37 +1,38 @@
-/*
-This is part of jsdifflib v1.0. <http://github.com/cemerick/jsdifflib>
+/***
+This is part of jsdifflib v1.0. <http://snowtide.com/jsdifflib>
 
-Copyright 2007 - 2011 Chas Emerick <cemerick@snowtide.com>. All rights reserved.
+Copyright (c) 2007, Snowtide Informatics Systems, Inc.
+All rights reserved.
 
-Redistribution and use in source and binary forms, with or without modification, are
-permitted provided that the following conditions are met:
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
 
-   1. Redistributions of source code must retain the above copyright notice, this list of
-      conditions and the following disclaimer.
+	* Redistributions of source code must retain the above copyright notice, this
+		list of conditions and the following disclaimer.
+	* Redistributions in binary form must reproduce the above copyright notice,
+		this list of conditions and the following disclaimer in the documentation
+		and/or other materials provided with the distribution.
+	* Neither the name of the Snowtide Informatics Systems nor the names of its
+		contributors may be used to endorse or promote products derived from this
+		software without specific prior written permission.
 
-   2. Redistributions in binary form must reproduce the above copyright notice, this list
-      of conditions and the following disclaimer in the documentation and/or other materials
-      provided with the distribution.
-
-THIS SOFTWARE IS PROVIDED BY Chas Emerick ``AS IS'' AND ANY EXPRESS OR IMPLIED
-WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL Chas Emerick OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-The views and conclusions contained in the software and documentation are those of the
-authors and should not be interpreted as representing official policies, either expressed
-or implied, of Chas Emerick.
-*/
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+DAMAGE.
+***/
+/* Author: Chas Emerick <cemerick@snowtide.com> */
 __whitespace = {" ":true, "\t":true, "\n":true, "\f":true, "\r":true};
 
 difflib = {
 	defaultJunkFunction: function (c) {
-		return c in __whitespace;
+		return __whitespace.hasOwnProperty(c);
 	},
 	
 	stripLinebreaks: function (str) { return str.replace(/^[\n\r]*|[\n\r]*$/g, ""); },
@@ -87,12 +88,12 @@ difflib = {
 	// is in the dict (js object) provided to this function; replaces being able to
 	// carry around dict.has_key in python...
 	__isindict: function (dict) {
-		return function (key) { return key in dict; };
+		return function (key) { return dict.hasOwnProperty(key); };
 	},
 	
 	// replacement for python's dict.get function -- need easy default values
 	__dictget: function (dict, key, defaultValue) {
-		return key in dict ? dict[key] : defaultValue;
+		return dict.hasOwnProperty(key) ? dict[key] : defaultValue;
 	},	
 	
 	SequenceMatcher: function (a, b, isjunk) {
@@ -121,7 +122,7 @@ difflib = {
 			var populardict = {};
 			for (var i = 0; i < b.length; i++) {
 				var elt = b[i];
-				if (elt in b2j) {
+				if (b2j.hasOwnProperty(elt)) {
 					var indices = b2j[elt];
 					if (n >= 200 && indices.length * 100 > n) {
 						populardict[elt] = 1;
@@ -134,20 +135,23 @@ difflib = {
 				}
 			}
 	
-			for (var elt in populardict)
-				delete b2j[elt];
+			for (var elt in populardict) {
+				if (populardict.hasOwnProperty(elt)) {
+					delete b2j[elt];
+				}
+			}
 			
 			var isjunk = this.isjunk;
 			var junkdict = {};
 			if (isjunk) {
 				for (var elt in populardict) {
-					if (isjunk(elt)) {
+					if (populardict.hasOwnProperty(elt) && isjunk(elt)) {
 						junkdict[elt] = 1;
 						delete populardict[elt];
 					}
 				}
 				for (var elt in b2j) {
-					if (isjunk(elt)) {
+					if (b2j.hasOwnProperty(elt) && isjunk(elt)) {
 						junkdict[elt] = 1;
 						delete b2j[elt];
 					}
@@ -174,14 +178,16 @@ difflib = {
 				var newj2len = {};
 				var jdict = difflib.__dictget(b2j, a[i], nothing);
 				for (var jkey in jdict) {
-					j = jdict[jkey];
-					if (j < blo) continue;
-					if (j >= bhi) break;
-					newj2len[j] = k = difflib.__dictget(j2len, j - 1, 0) + 1;
-					if (k > bestsize) {
-						besti = i - k + 1;
-						bestj = j - k + 1;
-						bestsize = k;
+					if (jdict.hasOwnProperty(jkey)) {
+						j = jdict[jkey];
+						if (j < blo) continue;
+						if (j >= bhi) break;
+						newj2len[j] = k = difflib.__dictget(j2len, j - 1, 0) + 1;
+						if (k > bestsize) {
+							besti = i - k + 1;
+							bestj = j - k + 1;
+							bestsize = k;
+						}
 					}
 				}
 				j2len = newj2len;
@@ -206,7 +212,7 @@ difflib = {
 			}
 			
 			while (besti + bestsize < ahi && bestj + bestsize < bhi && isbjunk(b[bestj + bestsize]) &&
-				  a[besti + bestsize] == b[bestj + bestsize]) {
+					a[besti + bestsize] == b[bestj + bestsize]) {
 				bestsize++;
 			}
 	
@@ -246,17 +252,19 @@ difflib = {
 			var i1 = j1 = k1 = block = 0;
 			var non_adjacent = [];
 			for (var idx in matching_blocks) {
-				block = matching_blocks[idx];
-				i2 = block[0];
-				j2 = block[1];
-				k2 = block[2];
-				if (i1 + k1 == i2 && j1 + k1 == j2) {
-					k1 += k2;
-				} else {
-					if (k1) non_adjacent.push([i1, j1, k1]);
-					i1 = i2;
-					j1 = j2;
-					k1 = k2;
+				if (matching_blocks.hasOwnProperty(idx)) {
+					block = matching_blocks[idx];
+					i2 = block[0];
+					j2 = block[1];
+					k2 = block[2];
+					if (i1 + k1 == i2 && j1 + k1 == j2) {
+						k1 += k2;
+					} else {
+						if (k1) non_adjacent.push([i1, j1, k1]);
+						i1 = i2;
+						j1 = j2;
+						k1 = k2;
+					}
 				}
 			}
 			
@@ -276,23 +284,25 @@ difflib = {
 			var block, ai, bj, size, tag;
 			var blocks = this.get_matching_blocks();
 			for (var idx in blocks) {
-				block = blocks[idx];
-				ai = block[0];
-				bj = block[1];
-				size = block[2];
-				tag = '';
-				if (i < ai && j < bj) {
-					tag = 'replace';
-				} else if (i < ai) {
-					tag = 'delete';
-				} else if (j < bj) {
-					tag = 'insert';
+				if (blocks.hasOwnProperty(idx)) {
+					block = blocks[idx];
+					ai = block[0];
+					bj = block[1];
+					size = block[2];
+					tag = '';
+					if (i < ai && j < bj) {
+						tag = 'replace';
+					} else if (i < ai) {
+						tag = 'delete';
+					} else if (j < bj) {
+						tag = 'insert';
+					}
+					if (tag) answer.push([tag, i, ai, j, bj]);
+					i = ai + size;
+					j = bj + size;
+					
+					if (size) answer.push(['equal', ai, i, bj, j]);
 				}
-				if (tag) answer.push([tag, i, ai, j, bj]);
-				i = ai + size;
-				j = bj + size;
-				
-				if (size) answer.push(['equal', ai, i, bj, j]);
 			}
 			
 			return answer;
@@ -327,19 +337,21 @@ difflib = {
 			var nn = n + n;
 			var groups = [];
 			for (var idx in codes) {
-				code = codes[idx];
-				tag = code[0];
-				i1 = code[1];
-				i2 = code[2];
-				j1 = code[3];
-				j2 = code[4];
-				if (tag == 'equal' && i2 - i1 > nn) {
-					groups.push([tag, i1, Math.min(i2, i1 + n), j1, Math.min(j2, j1 + n)]);
-					i1 = Math.max(i1, i2-n);
-					j1 = Math.max(j1, j2-n);
+				if (codes.hasOwnProperty(idx)) {
+					code = codes[idx];
+					tag = code[0];
+					i1 = code[1];
+					i2 = code[2];
+					j1 = code[3];
+					j2 = code[4];
+					if (tag == 'equal' && i2 - i1 > nn) {
+						groups.push([tag, i1, Math.min(i2, i1 + n), j1, Math.min(j2, j1 + n)]);
+						i1 = Math.max(i1, i2-n);
+						j1 = Math.max(j1, j2-n);
+					}
+					
+					groups.push([tag, i1, i2, j1, j2]);
 				}
-				
-				groups.push([tag, i1, i2, j1, j2]);
 			}
 			
 			if (groups && groups[groups.length - 1][0] == 'equal') groups.pop();

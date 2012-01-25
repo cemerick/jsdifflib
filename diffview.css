@@ -29,7 +29,8 @@ or implied, of Chas Emerick.
 */
 table.diff {
 	border-collapse:collapse;
-	border:1px solid darkgray
+	border:1px solid darkgray;
+	white-space:pre-wrap
 }
 table.diff tbody { 
 	font-family:Courier, monospace

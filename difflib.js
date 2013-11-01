@@ -407,4 +407,5 @@ difflib = {
 		this.a = this.b = null;
 		this.set_seqs(a, b);
 	}
-}
+};
+

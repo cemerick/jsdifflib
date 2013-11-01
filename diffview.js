@@ -194,4 +194,5 @@ diffview = {
 		for (var idx in tdata) tdata.hasOwnProperty(idx) && node.appendChild(tdata[idx]);
 		return node;
 	}
-}
+};
+

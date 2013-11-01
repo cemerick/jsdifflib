@@ -188,10 +188,10 @@ diffview = {
 		node2.setAttribute("href", "http://github.com/cemerick/jsdifflib");
 		
 		tdata.push(node = document.createElement("tbody"));
-		for (var idx in rows) node.appendChild(rows[idx]);
+		for (var idx in rows) rows.hasOwnProperty(idx) && node.appendChild(rows[idx]);
 		
 		node = celt("table", "diff" + (inline ? " inlinediff" : ""));
-		for (var idx in tdata) node.appendChild(tdata[idx]);
+		for (var idx in tdata) tdata.hasOwnProperty(idx) && node.appendChild(tdata[idx]);
 		return node;
 	}
 }

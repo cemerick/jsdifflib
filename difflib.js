@@ -335,6 +335,7 @@ difflib = {
 			}
 	
 			var nn = n + n;
+			var group = [];
 			var groups = [];
 			for (var idx in codes) {
 				if (codes.hasOwnProperty(idx)) {
@@ -345,16 +346,18 @@ difflib = {
 					j1 = code[3];
 					j2 = code[4];
 					if (tag == 'equal' && i2 - i1 > nn) {
-						groups.push([tag, i1, Math.min(i2, i1 + n), j1, Math.min(j2, j1 + n)]);
+						group.push([tag, i1, Math.min(i2, i1 + n), j1, Math.min(j2, j1 + n)]);
+						groups.push(group);
+						group = [];
 						i1 = Math.max(i1, i2-n);
 						j1 = Math.max(j1, j2-n);
 					}
 					
-					groups.push([tag, i1, i2, j1, j2]);
+					group.push([tag, i1, i2, j1, j2]);
 				}
 			}
 			
-			if (groups && groups[groups.length - 1][0] == 'equal') groups.pop();
+			if (group && !(group.length == 1 && group[0][0] == 'equal')) groups.push(group)
 			
 			return groups;
 		}

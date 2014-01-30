@@ -16,6 +16,8 @@
 
 http://cemerick.com[I] needed a good in-browser visual diff tool, and couldn't find anything suitable, so I built *jsdifflib* in Feb 2007 and open-sourced it soon thereafter.  It's apparently been used a fair bit since then.  Maybe you'll find it useful.
 
+===== If you *do* find jsdifflib useful, _please support my open source work via a bitcoin donation/tip_ to 1Htu5T1Mkk7bU6XmzYjeQG25xSCgEjVZHn.  Thanks!
+
 [[overview]]
 == Overview
 

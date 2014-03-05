@@ -171,6 +171,7 @@ var difflib = {
 			var bestj = blo;
 			var bestsize = 0;
 			var j = null;
+			var k;
 	
 			var j2len = {};
 			var nothing = [];
@@ -249,7 +250,8 @@ var difflib = {
 			
 			matching_blocks.sort(difflib.__ntuplecomp);
 	
-			var i1 = j1 = k1 = block = 0;
+			var i1 = 0, j1 = 0, k1 = 0, block = 0;
+			var i2, j2, k2;
 			var non_adjacent = [];
 			for (var idx in matching_blocks) {
 				if (matching_blocks.hasOwnProperty(idx)) {

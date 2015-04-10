@@ -29,7 +29,9 @@ DAMAGE.
 ***/
 /* Author: Chas Emerick <cemerick@snowtide.com> */
 var __whitespace = {" ":true, "\t":true, "\n":true, "\f":true, "\r":true};
-
+function __hasOwnProperty(obj, target){
+       return Object.prototype.hasOwnProperty.call(obj, target);
+}
 var difflib = {
 	defaultJunkFunction: function (c) {
 		return __whitespace.hasOwnProperty(c);
@@ -88,7 +90,7 @@ var difflib = {
 	// is in the dict (js object) provided to this function; replaces being able to
 	// carry around dict.has_key in python...
 	__isindict: function (dict) {
-		return function (key) { return dict.hasOwnProperty(key); };
+		return function (key) { return __hasOwnProperty(dict, key); };
 	},
 	
 	// replacement for python's dict.get function -- need easy default values
@@ -122,7 +124,7 @@ var difflib = {
 			var populardict = {};
 			for (var i = 0; i < b.length; i++) {
 				var elt = b[i];
-				if (b2j.hasOwnProperty(elt)) {
+				if (__hasOwnProperty(b2j, elt)) {
 					var indices = b2j[elt];
 					if (n >= 200 && indices.length * 100 > n) {
 						populardict[elt] = 1;
@@ -145,7 +147,7 @@ var difflib = {
 			var junkdict = {};
 			if (isjunk) {
 				for (var elt in populardict) {
-					if (populardict.hasOwnProperty(elt) && isjunk(elt)) {
+					if (__hasOwnProperty(populardict, elt) && isjunk(elt)) {
 						junkdict[elt] = 1;
 						delete populardict[elt];
 					}

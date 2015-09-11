@@ -124,6 +124,9 @@ diffview = {
 			row.appendChild(ctelt("td", change, textLines[tidx != null ? tidx : tidx2].replace(/\t/g, "\u00a0\u00a0\u00a0\u00a0")));
 		}
 		
+		var lastChange = "equal";
+	    var differences = 0;
+
 		for (var idx = 0; idx < opcodes.length; idx++) {
 			code = opcodes[idx];
 			change = code[0];
@@ -175,6 +178,15 @@ diffview = {
 				} else {
 					b = addCells(node, b, be, baseTextLines, change);
 					n = addCells(node, n, ne, newTextLines, change);
+				}
+
+				if (lastChange != change) {
+					lastChange = change;
+
+					if (change != "equal") {
+					    differences++;
+						node.setAttribute("id", "diffview_difference_" + differences.length);
+					}
 				}
 			}
 

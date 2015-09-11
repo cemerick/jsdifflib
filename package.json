@@ -1,0 +1,28 @@
+{
+  "name": "jsdifflib",
+  "version": "1.0.0",
+  "description": "A javascript library to diff two files.",
+  "main": "difflib.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "mocha": "^2.3.2",
+	"jsdom": "^3.1.2",
+	"chai": "^3.2.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/red-gate/jsdifflib.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/red-gate/jsdifflib/issues"
+  },
+  "homepage": "https://github.com/red-gate/jsdifflib#readme"
+}

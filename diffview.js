@@ -185,7 +185,7 @@ diffview = {
 
 					if (change != "equal") {
 						differences++;
-						node.setAttribute("id", "diffview_difference_" + differences.length);
+						node.setAttribute("id", "diffview_difference_" + differences);
 					}
 				}
 			}

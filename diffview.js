@@ -199,7 +199,11 @@ diffview = {
 		
 		node = celt("table", "diff" + (inline ? " inlinediff" : ""));
 		for (var idx in tdata) tdata.hasOwnProperty(idx) && node.appendChild(tdata[idx]);
-		return node;
+		
+		return {
+			diffOutput: node,
+			differences: differences
+		}
 	}
 };
 

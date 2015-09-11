@@ -1,9 +1,10 @@
 var expect = require("chai").expect;
-var diffview = require("../diffview.js");
-var difflib = require("../difflib.js");
 var jsdom = require("jsdom").jsdom;
 var document = jsdom("<html></html>");
 global.document = document;
+
+eval(require('fs').readFileSync('difflib.js', 'utf8'));
+eval(require('fs').readFileSync('diffview.js', 'utf8'));
 
 describe("diffview", function() {
    describe(".buildView()", function() {

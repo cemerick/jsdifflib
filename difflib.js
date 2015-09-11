@@ -29,8 +29,6 @@ DAMAGE.
 ***/
 /* Author: Chas Emerick <cemerick@snowtide.com> */
 
-exports = module.exports = {};
-
 var __whitespace = {" ":true, "\t":true, "\n":true, "\f":true, "\r":true};
 
 var difflib = {
@@ -413,6 +411,3 @@ var difflib = {
 		this.set_seqs(a, b);
 	}
 };
-
-exports.stringAsLines = difflib.stringAsLines;
-exports.SequenceMatcher = difflib.SequenceMatcher;

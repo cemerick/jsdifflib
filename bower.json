@@ -1,0 +1,24 @@
+{
+  "name": "jsdifflib",
+  "version": "1.0.0",
+  "homepage": "https://github.com/red-gate/jsdifflib",
+  "authors": [
+    "Spencer Thang <spencer.thang@red-gate.com>"
+  ],
+  "description": "A javascript library for diffing two files.",
+  "main": "difflib.js",
+  "moduleType": [
+    "amd"
+  ],
+  "keywords": [
+    "diff"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

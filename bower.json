@@ -6,7 +6,10 @@
     "Spencer Thang <spencer.thang@red-gate.com>"
   ],
   "description": "A javascript library for diffing two files.",
-  "main": "difflib.js",
+  "main": [
+    "difflib.js",
+	"diffview.js"
+  ],
   "moduleType": [
     "amd"
   ],

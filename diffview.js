@@ -127,6 +127,7 @@ diffview = {
 		
 		var lastChange = "equal";
 		var differences = 0;
+		var diffIds = [];
 
 		for (var idx = 0; idx < opcodes.length; idx++) {
 			code = opcodes[idx];
@@ -187,6 +188,7 @@ diffview = {
 					if (change != "equal") {
 						differences++;
 						node.setAttribute("id", "diffview_difference_" + differences);
+					    diffIds.push("diffview_difference_" + differences);
 					}
 				}
 			}
@@ -203,7 +205,8 @@ diffview = {
 		
 		return {
 			diffOutput: node,
-			differences: differences
+			differences: differences,
+			diffIds: diffIds,
 		}
 	}
 };

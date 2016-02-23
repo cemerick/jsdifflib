@@ -27,7 +27,7 @@ The views and conclusions contained in the software and documentation are those 
 authors and should not be interpreted as representing official policies, either expressed
 or implied, of Chas Emerick.
 */
-diffview = {
+var diffview = {
 	/**
 	 * Builds and returns a visual diff view.  The single parameter, `params', should contain
 	 * the following values:

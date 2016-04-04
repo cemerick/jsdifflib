@@ -43,6 +43,8 @@ diffview = {
 	 *	   are shown
 	 * - viewType: if 0, a side-by-side diff view is generated (default); if 1, an inline diff view is
 	 *	   generated
+	 * - invertSides: if 0, baseText will be on the left and newText on the right (default); if 1,
+	 *	   baseText will be on the right and newText on the left
 	 */
 	buildView: function (params) {
 		var baseTextLines = params.baseTextLines;
@@ -52,6 +54,7 @@ diffview = {
 		var newTextName = params.newTextName ? params.newTextName : "New Text";
 		var contextSize = params.contextSize;
 		var inline = (params.viewType == 0 || params.viewType == 1) ? params.viewType : 0;
+		var invertSides = (params.invertSides == 0 || params.invertSides == 1) ? params.invertSides : 0;
 
 		if (baseTextLines == null)
 			throw "Cannot build diff view; baseTextLines is not defined.";
@@ -78,19 +81,24 @@ diffview = {
 			e.appendChild(document.createTextNode(text));
 			return e;
 		}
-	
+		
+		var leftTextName = invertSides ? newTextName : baseTextName;
+		var rightTextName = invertSides ? baseTextName : newTextName;
+		var leftClass = invertSides ? "new" : "base";
+		var rightClass = invertSides ? "base" : "new";
+		
 		var tdata = document.createElement("thead");
 		var node = document.createElement("tr");
 		tdata.appendChild(node);
 		if (inline) {
 			node.appendChild(document.createElement("th"));
 			node.appendChild(document.createElement("th"));
-			node.appendChild(ctelt("th", "texttitle", baseTextName + " vs. " + newTextName));
+			node.appendChild(ctelt("th", "texttitle", leftTextName + " vs. " + rightTextName));
 		} else {
 			node.appendChild(document.createElement("th"));
-			node.appendChild(ctelt("th", "texttitle", baseTextName));
+			node.appendChild(ctelt("th", "texttitle "+leftClass, leftTextName));
 			node.appendChild(document.createElement("th"));
-			node.appendChild(ctelt("th", "texttitle", newTextName));
+			node.appendChild(ctelt("th", "texttitle "+rightClass, rightTextName));
 		}
 		tdata = [tdata];
 		
@@ -117,10 +125,16 @@ diffview = {
 				return tidx;
 			}
 		}
-		
-		function addCellsInline (row, tidx, tidx2, textLines, change) {
-			row.appendChild(telt("th", tidx == null ? "" : (tidx + 1).toString()));
-			row.appendChild(telt("th", tidx2 == null ? "" : (tidx2 + 1).toString()));
+
+		function addCellsInline (row, tidx, tidx2, textLines, change, invertSides) {
+			if(invertSides) {
+				row.appendChild(telt("th", tidx2 == null ? "" : (tidx2 + 1).toString()));
+				row.appendChild(telt("th", tidx == null ? "" : (tidx + 1).toString()));
+			}
+			else {
+				row.appendChild(telt("th", tidx == null ? "" : (tidx + 1).toString()));
+				row.appendChild(telt("th", tidx2 == null ? "" : (tidx2 + 1).toString()));
+			}
 			row.appendChild(ctelt("td", change, textLines[tidx != null ? tidx : tidx2].replace(/\t/g, "\u00a0\u00a0\u00a0\u00a0")));
 		}
 		
@@ -161,20 +175,26 @@ diffview = {
 				toprows.push(node = document.createElement("tr"));
 				if (inline) {
 					if (change == "insert") {
-						addCellsInline(node, null, n++, newTextLines, change);
+						addCellsInline(node, null, n++, newTextLines, change, invertSides);
 					} else if (change == "replace") {
 						botrows.push(node2 = document.createElement("tr"));
-						if (b < be) addCellsInline(node, b++, null, baseTextLines, "delete");
-						if (n < ne) addCellsInline(node2, null, n++, newTextLines, "insert");
+						if (b < be) addCellsInline(node, b++, null, baseTextLines, "delete", invertSides);
+						if (n < ne) addCellsInline(node2, null, n++, newTextLines, "insert", invertSides);
 					} else if (change == "delete") {
-						addCellsInline(node, b++, null, baseTextLines, change);
+						addCellsInline(node, b++, null, baseTextLines, change, invertSides);
 					} else {
 						// equal
-						addCellsInline(node, b++, n++, baseTextLines, change);
+						addCellsInline(node, b++, n++, baseTextLines, change, invertSides);
 					}
 				} else {
-					b = addCells(node, b, be, baseTextLines, change);
-					n = addCells(node, n, ne, newTextLines, change);
+					if(invertSides) {
+						n = addCells(node, n, ne, newTextLines, change);
+						b = addCells(node, b, be, baseTextLines, change);
+					}
+					else {
+						b = addCells(node, b, be, baseTextLines, change);
+						n = addCells(node, n, ne, newTextLines, change);
+					}
 				}
 			}
 

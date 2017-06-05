@@ -66,7 +66,7 @@ table.diff .replace {
 	background-color:#FD8
 }
 table.diff .delete {
-	background-color:#E99;
+	background-color:#FDD;
 }
 table.diff .skip {
 	background-color:#EFEFEF;
@@ -74,10 +74,19 @@ table.diff .skip {
 	border-right:1px solid #BBC;
 }
 table.diff .insert {
-	background-color:#9E9
+	background-color:#CFC
 }
 table.diff th.author {
 	text-align:right;
 	border-top:1px solid #BBC;
 	background:#EFEFEF
+}
+ins.diff {
+	background-color: #50FF50;
+	text-decoration: none;
+}
+del.diff {
+	background-color: #fff;
+	color: #999;
+	text-decoration: line-through;
 }

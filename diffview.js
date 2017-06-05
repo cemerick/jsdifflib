@@ -51,7 +51,8 @@ var diffview = {
 		var baseTextName = params.baseTextName ? params.baseTextName : "Base Text";
 		var newTextName = params.newTextName ? params.newTextName : "New Text";
 		var contextSize = params.contextSize;
-		var inline = (params.viewType == 0 || params.viewType == 1) ? params.viewType : 0;
+		var inline = (params.viewType == 0 || params.viewType >= 1) ? params.viewType : 0;
+		var wordlevel = params.viewType > 1;
 
 		if (baseTextLines == null)
 			throw "Cannot build diff view; baseTextLines is not defined.";
@@ -76,6 +77,13 @@ var diffview = {
 			var e = document.createElement(name);
 			e.className = clazz;
 			e.appendChild(document.createTextNode(text));
+			return e;
+		}
+
+		function ctel (name, clazz, node) {
+			var e = document.createElement(name);
+			e.className = clazz;
+			e.appendChild(node);
 			return e;
 		}
 	
@@ -123,7 +131,13 @@ var diffview = {
 			row.appendChild(telt("th", tidx2 == null ? "" : (tidx2 + 1).toString()));
 			row.appendChild(ctelt("td", change, textLines[tidx != null ? tidx : tidx2].replace(/\t/g, "\u00a0\u00a0\u00a0\u00a0")));
 		}
-		
+
+		function addCellsNode (row, tidx, tidx2, node, change) {
+			row.appendChild(telt("th", tidx == null ? "" : (tidx + 1).toString()));
+			row.appendChild(telt("th", tidx2 == null ? "" : (tidx2 + 1).toString()));
+			row.appendChild(ctel("td", change, node));
+		}
+
 		for (var idx = 0; idx < opcodes.length; idx++) {
 			code = opcodes[idx];
 			change = code[0];
@@ -164,8 +178,46 @@ var diffview = {
 						addCellsInline(node, null, n++, newTextLines, change);
 					} else if (change == "replace") {
 						botrows.push(node2 = document.createElement("tr"));
+						if (wordlevel) {
+						var baseTextLine = baseTextLines[b];
+						var newTextLine = newTextLines[n];
+						var wordrule = /([^\S]+|[a-zA-Z0-9_-]+|.)(?:(?!<)[^\S])?/;
+						var bw = baseTextLine.split(wordrule);
+						var nw = newTextLine.split(wordrule);
+						var wsm = new difflib.SequenceMatcher(bw, nw);
+						var wopcodes = wsm.get_opcodes();
+						var bnode = document.createElement('span');
+						var nnode = document.createElement('span');
+						for (var k = 0; k < wopcodes.length; k++) {
+							var wcode = wopcodes[k];
+							var wchange = wcode[0];
+							var wb = wcode[1];
+							var wbe = wcode[2];
+							var wn = wcode[3];
+							var wne = wcode[4];
+							var wcnt = Math.max(wbe - wb, wne - wn);
+
+							for (var m = 0; m < wcnt; m++) {
+								if (wchange == "insert") {
+									nnode.appendChild(ctelt("ins", "diff", nw[wn++]));
+								} else if (wchange == "replace") {
+									if (wb < wbe) bnode.appendChild(ctelt("del", "diff", bw[wb++]));
+									if (wn < wne) nnode.appendChild(ctelt("ins", "diff", nw[wn++]));
+								} else if (wchange == "delete") {
+									bnode.appendChild(ctelt("del", "diff", bw[wb++]));
+								} else {
+									// equal
+									bnode.appendChild(ctelt("span", wchange, bw[wb]));
+									nnode.appendChild(ctelt("span", wchange, bw[wb++]));
+								}
+							}
+						}
+						if (b < be) addCellsNode(node, b++, null, bnode, "delete");
+						if (n < ne) addCellsNode(node2, null, n++, nnode, "insert");
+						} else {
 						if (b < be) addCellsInline(node, b++, null, baseTextLines, "delete");
 						if (n < ne) addCellsInline(node2, null, n++, newTextLines, "insert");
+						}
 					} else if (change == "delete") {
 						addCellsInline(node, b++, null, baseTextLines, change);
 					} else {

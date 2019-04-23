@@ -44,7 +44,11 @@ table.diff tbody th {
 	color:#886;
 	padding:.3em .5em .1em 2em;
 	text-align:right;
-	vertical-align:top
+	vertical-align:top;
+	-webkit-user-select:none;
+	-moz-user-select:none;
+	-ms-user-select:none;
+	user-select:none;
 }
 table.diff thead {
 	border-bottom:1px solid #BBC;

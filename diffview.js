@@ -52,6 +52,7 @@ var diffview = {
 		var newTextName = params.newTextName ? params.newTextName : "New Text";
 		var contextSize = params.contextSize;
 		var inline = (params.viewType == 0 || params.viewType == 1) ? params.viewType : 0;
+		var bothContainLineNumbers = params.bothContainLineNumbers != null ? params.bothContainLineNumbers : true;
 
 		if (baseTextLines == null)
 			throw "Cannot build diff view; baseTextLines is not defined.";
@@ -89,8 +90,15 @@ var diffview = {
 		} else {
 			node.appendChild(document.createElement("th"));
 			node.appendChild(ctelt("th", "texttitle", baseTextName));
-			node.appendChild(document.createElement("th"));
-			node.appendChild(ctelt("th", "texttitle", newTextName));
+			if (bothContainLineNumbers) {
+				node.appendChild(document.createElement("th"));
+				node.appendChild(ctelt("th", "texttitle", newTextName));
+			} else {
+				var child = ctelt("th", "texttitle", newTextName);
+				node.appendChild(child);
+				child.style.border="1px solid #BBC;";
+			}
+			
 		}
 		tdata = [tdata];
 		
@@ -106,10 +114,16 @@ var diffview = {
 		 * be returned.	 Otherwise, tidx is returned, and two empty cells are added
 		 * to the given row.
 		 */
-		function addCells (row, tidx, tend, textLines, change) {
+		function addCells (row, tidx, tend, textLines, change, addLineNumber) {
 			if (tidx < tend) {
-				row.appendChild(telt("th", (tidx + 1).toString()));
-				row.appendChild(ctelt("td", change, textLines[tidx].replace(/\t/g, "\u00a0\u00a0\u00a0\u00a0")));
+				var child = ctelt("td", change, textLines[tidx].replace(/\t/g, "\u00a0\u00a0\u00a0\u00a0"));
+				if (addLineNumber) {
+					row.appendChild(telt("th", (tidx + 1).toString()));
+				} else {
+					child.style.borderLeft="1px solid #BBC";
+				}
+				
+				row.appendChild(child);
 				return tidx + 1;
 			} else {
 				row.appendChild(document.createElement("th"));
@@ -173,8 +187,8 @@ var diffview = {
 						addCellsInline(node, b++, n++, baseTextLines, change);
 					}
 				} else {
-					b = addCells(node, b, be, baseTextLines, change);
-					n = addCells(node, n, ne, newTextLines, change);
+					b = addCells(node, b, be, baseTextLines, change, true);
+					n = addCells(node, n, ne, newTextLines, change, bothContainLineNumbers);
 				}
 			}
 

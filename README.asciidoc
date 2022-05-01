@@ -42,7 +42,7 @@ Most of the time, we do the latter, simply because while jsdifflib is pretty fas
 
 You can give jsdifflib a try without downloading anything. Just click the link below, put some content to be diffed in the two textboxes, and diff away.
 
-http://cemerick.github.com/jsdifflib/demo.html[*Try jsdifflib*]
+https://cemerick.github.io/jsdifflib/demo.html[*Try jsdifflib*]
 
 That page also contains all of the examples you'll need to use jsdifflib yourself, but let's look at them here, anyway.
 

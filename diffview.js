@@ -56,6 +56,9 @@ diffview = {
 		var contextSize = params.contextSize;
 		var inline = (params.viewType == 0 || params.viewType == 1) ? params.viewType : 0;
 
+    let startTimings = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000];
+    let durations = [501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511];
+
     inline = 0;
 
 
@@ -137,6 +140,8 @@ diffview = {
       diffOutput.push(wordObj);
       
       if (diffColumn === "base") {
+        wordObj.start = startTimings[tidx];
+        wordObj.duration = durations[tidx];
         diffOutputBase.push(wordObj);
         diffColumn = "new";
       } else {
@@ -290,8 +295,7 @@ diffview = {
 
     //console.log(output);
 
-    let startTimings = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000];
-    let durations = [501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511];
+
     let boundaryStart = 30;
     let boundaryEnd = 13000;
     //let realigned = [];
@@ -318,20 +322,15 @@ diffview = {
     diffOutputBase.forEach((out, index) => {
       
       if (out.status === "equal") {
-        realigned.push({'text': out.text, 'time': startTimings[out.tidx], 'duration': durations[out.tidx]});
+        //realigned.push({'text': out.text, 'time': startTimings[out.tidx], 'duration': durations[out.tidx]});
+        realigned.push({'text': out.text, 'time': out.start, 'duration': out.duration});
       }
 
       if (out.status === "deleted") {
         totalDeleted++;
       }
 
-      //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%");
-      //console.log(out.status);
-      //console.log(lastStatus);
-
       if (out.status === "replace" && lastStatus !== "replace") {
-
-        //console.log("IN REPLACE");
 
         let wordLengths = [];
         let totalWordLength = 0;
@@ -344,20 +343,13 @@ diffview = {
         wordLengths[0] = diffOutputNew[index].text.length; 
         totalWordLength += wordLengths[0];
 
-        //console.log("================wordLengths[0] = "+wordLengths[0]);
-
         // to establish startTimeIndex 
         // we need to point to the correct value in the diffOutputNew array 
         // and so need to take account of the total number of inserts that have come before 
         // as the index value includes those
 
 
-        //let startTimeIndex = diffOutputNew[index+1-totalInserts].tidx;
-        let startTimeIndex = diffOutputBase[index].tend-1;
-        console.log("startTimeIndex = "+startTimeIndex);
-        let startTime = startTimings[startTimeIndex]; 
-        console.log("startTime = "+startTime);
-
+        let startTime = out.start;
         let replacements = 1;
     
         // lookahead, are there any other replacements immediately after, if so - how many?
@@ -367,18 +359,11 @@ diffview = {
           totalWordLength += wordLengths[replacements];
           replacements++;
         }
-
-        console.log("replacements = "+replacements);
         
         // check the next non-replacement and grab its time to calculate increments for the replacements
         if (diffOutputBase[index+replacements]) {
-          endTime = startTimings[diffOutputBase[index+replacements-1].tend];
-          console.log("replacement startTime = "+ startTime);
-          console.log("replacement endTime = "+ endTime);
+          endTime = diffOutputBase[index+replacements].start;
         }
-
-        //console.log("replacement word lengths");
-        //console.log(wordLengths);
 
         let counter = 0;
         let lastEndTime = null;
@@ -391,40 +376,28 @@ diffview = {
             gap = (endTime - startTime);
           } else { // previously aligned word does not exist 
             lastEndTime = boundaryStart;
-            gap = (startTimings[0] - boundaryStart);
+            gap = diffOutputBase[0].start - boundaryStart;
           }
           counter++; 
           let timePerLetter = gap/totalWordLength;
           let wordLength = wordLengths[counter-1];
-          console.log("gap = "+gap);
-          console.log("counter = "+counter);
-          console.log("index = "+index);
-          console.log("replacement - pushing "+ diffOutput[index+counter-1].text);
         
           if (counter === 1) { // a counter of 1 means we're at the first replacement which starts from next startTime
-            //console.log("tidx = "+diffOutput[index].tidx);
             // duration should be that of replaced word when there is only one replacement
-            //let replacementDuration = durations[diffOutputBase[index+1].tidx];
             let replacementDuration = durations[diffOutputBase[index].tidx];
             // if there's more than one replacement word we need to calculate
             if (replacements > 1) {
               replacementDuration = Math.floor((timePerLetter)*wordLength)-1;
             }
 
-            console.log("replacementDuration = "+replacementDuration);
-
-            realigned.push({'text': diffOutputNew[index+counter-1].text, 'time': startTimings[diffOutputBase[index].tidx], 'duration': replacementDuration});
+            realigned.push({'text': diffOutputNew[index+counter-1].text, 'time': out.start, 'duration': replacementDuration});
           } else { // subsequent pushes should use lastEndTime + duration
             realigned.push({'text': diffOutputNew[index+counter-1].text, 'time': lastEndTime+1, 'duration': Math.floor((timePerLetter)*wordLength)-1});
           }
         }
 
         totalInserts += (replacements - 1);
-
-        //diffRealigned.push({'text': diffOutput[index+1].text, 'time': startTimings[out.tidx], 'duration': durations[out.tidx]});
       }
-
-      //console.log("lastStatus = "+lastStatus);
 
       if (out.status === "insert" && lastStatus !== "insert") {
 
@@ -437,24 +410,14 @@ diffview = {
         wordLengths[0] = diffOutputNew[index].text.length; 
         totalWordLength += wordLengths[0];
 
-        //console.log("================wordLengths[0] = "+wordLengths[0]);
 
-
-        // to establish startTimeIndex 
-        // we need to point to the correct value in the diffOutput array 
-        // and so need to take account of the total number of inserts that have come before 
+        // we need to take account of the total number of inserts that have come before 
         // as the index value includes those
 
-        let startTimeIndex = 0;
-        let startTime = 0;
+        let startTime = out.start + out.duration;
         
         if (realigned.length > 0) { // previously aligned word exists)
-          //startTimeIndex = diffOutputNew[index-totalInserts-totalDeleted].tidx;
-
-          // NOTE – diffOutputBase[index].tend === diffOutputBase[index+1].tidx
-          startTimeIndex = diffOutputBase[index].tend-1;
-          console.log("INSERT realigned startTimeIndex = "+startTimeIndex);
-          startTime = startTimings[startTimeIndex]+durations[startTimeIndex]; 
+          startTime = diffOutputBase[index-1].start + diffOutputBase[index-1].duration; 
         }
         
         //establish inserts in a row
@@ -467,28 +430,18 @@ diffview = {
           inserts++;
         }
 
-        console.log("startTime = "+startTime);
-        console.log("inserts = "+inserts);
-        console.log(wordLengths);
-
         let endTime = null;
         let gap = null;
 
         // check the next non-insert and grab its time to calculate increments for the inserts
         if (diffOutputBase[index+inserts-1]) {
-          endTime = startTimings[diffOutputBase[index+inserts-1].tidx];
+          endTime = diffOutputBase[index+inserts-1].start;
         }
-
-        console.log("INSERT endTime = "+endTime);
 
         let counter = 0;
         let lastEndTime = null;
 
         // loop through the inserts again and push the text and new calculated time
-        /*console.log(index);
-        console.log(counter);
-        console.log(index+counter);
-        console.log(diffOutputBase);*/
 
         while(diffOutputBase[index+counter].status === "insert") {
           if (realigned.length > 0) { // previously aligned word exists
@@ -497,7 +450,7 @@ diffview = {
             gap = (endTime - startTime);
           } else { // previously aligned word does not exist 
             lastEndTime = boundaryStart;
-            gap = (startTimings[0] - boundaryStart);
+            gap = diffOutputBase[0].start - boundaryStart;
           }
           counter++; 
           let timePerLetter = gap/totalWordLength;
@@ -512,26 +465,14 @@ diffview = {
    
     });
 
-    //console.log("==========================");
-
-
-
-    /*console.log("diffOutput...");
-    console.log(diffOutput);*/
-
     console.log("diffOutputBase...");
     console.log(diffOutputBase);
 
     console.log("diffOutputNew...");
     console.log(diffOutputNew);
 
-    /*console.log("diffRealigned...");
-    console.log(diffRealigned);*/
-
     console.log("realigned...");
     console.log(realigned);
-
-
 
     ////console.log(node);
 
